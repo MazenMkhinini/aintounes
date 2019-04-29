@@ -52,3 +52,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'auth_lite/index';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+
+$route['propositions/(:num)'] = 'propositions/get/$1';
+$route['propositions'] = 'propositions/get/-1';
