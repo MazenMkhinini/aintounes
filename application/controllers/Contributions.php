@@ -1,11 +1,11 @@
 <?php
 
-class Propositions extends CI_Controller
+class Contributions extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('proposition_model');
+        $this->load->model('contribution_model');
         $this->load->model('theme_model');
         $this->load->model('besoin_model');
     }
@@ -15,17 +15,24 @@ class Propositions extends CI_Controller
     public function get($id=-1){
         header('Content-Type: application/json');
         if($id==-1)
-            echo json_encode($this->proposition_model->get_propositions());
+            echo json_encode($this->contribution_model->get_contributions());
         else{
-            $prop = $this->proposition_model->get_proposition_id($id);
+            $prop = $this->contribution_model->get_contribution_id($id);
             if(!$prop)
                 echo json_encode(array(
                     'code'=>'1',
-                    'message'=>'No proposition with that ID exists'
+                    'message'=>'No contribution with that ID exists'
                 ));
             else
                 echo json_encode($prop);
         }
+    }
+
+    public function getbyprop($id){
+        header('Content-Type: application/json');
+        $prop = $this->contribution_model->get_contribution_prop($id);
+        echo json_encode($prop);
+
     }
 
     public function add(){
@@ -38,17 +45,39 @@ class Propositions extends CI_Controller
                 ));
                 return;
             }
-
-            $theme = $this->theme_id(html_entity_decode($this->security->xss_clean($this->input->get_post('theme'))));
-            $besoin = $this->besoin_id(html_entity_decode($this->security->xss_clean($this->input->get_post('besoin'))));
             $data = array(
                 'title'=>html_entity_decode($this->security->xss_clean($this->input->get_post('title'))),
                 'description'=>html_entity_decode($this->security->xss_clean($this->input->get_post('description'))),
                 'solution'=>html_entity_decode($this->security->xss_clean($this->input->get_post('solution'))),
-                'theme'=>$theme,
-                'besoin'=>$besoin,
                 'user_id'=>html_entity_decode($this->security->xss_clean($this->input->get_post('user_id'))),
             );
+            if(!$this->input->get_post('proposition_id')){
+                if (!$this->input->get_post('contribution_id')) {
+                    echo json_encode(array(
+                        'code' => 1,
+                        'message' => 'A contribution or proposition ID must be provided'
+                    ));
+                    return;
+                }
+                else
+                    $data['contribution_id'] = html_entity_decode($this->security->xss_clean($this->input->get_post('contribution_id')));
+            }
+            else {
+                $data['proposition_id'] = html_entity_decode($this->security->xss_clean($this->input->get_post('proposition_id')));
+            }
+            if($this->input->get_post('approved')){
+                $approved = html_entity_decode($this->security->xss_clean($this->input->get_post('approved')));
+                if($approved != '1' && $approved != '0')
+                {
+                    echo json_encode(array(
+                        'code'=>1,
+                        'message'=>'The field approved must be either \'1\' (true) or \'0\' (false)'
+                    ));
+                    return;
+                }
+                $data['approved'] = $approved;
+            }
+
             if ($this->input->get_post('risks'))
                 $data['risks']=html_entity_decode($this->security->xss_clean($this->input->get_post('risks')));
             if ($this->input->get_post('examples'))
@@ -63,7 +92,7 @@ class Propositions extends CI_Controller
                 $data['equality']=html_entity_decode($this->security->xss_clean($this->input->get_post('equality')));
             if ($this->input->get_post('reference'))
                 $data['reference']=html_entity_decode($this->security->xss_clean($this->input->get_post('reference')));
-            $this->proposition_model->add_proposition($data);
+            $this->contribution_model->add_contribution($data);
             echo json_encode(array(
                 'code'=>0,
                 'message'=>'Data added successfully'
@@ -82,16 +111,16 @@ class Propositions extends CI_Controller
             if(!$this->input->get_post('id')){
                 echo json_encode(array(
                     'code'=>1,
-                    'message'=>'You must provide an ID to update a proposition'
+                    'message'=>'You must provide an ID to update a contribution'
                 ));
                 return;
             }
 
             $id = $this->security->xss_clean($this->input->get_post('id'));
-            if(!$this->proposition_model->get_proposition_id($id)){
+            if(!$this->contribution_model->get_contribution_id($id)){
                 echo json_encode(array(
                     'code'=>1,
-                    'message'=>'No proposition with that ID exists ('.$id.')'
+                    'message'=>'No contribution with that ID exists ('.$id.')'
                 ));
                 return;
             }
@@ -124,7 +153,7 @@ class Propositions extends CI_Controller
                 $data['equality']=html_entity_decode($this->security->xss_clean($this->input->get_post('equality')));
             if ($this->input->get_post('reference'))
                 $data['reference']=html_entity_decode($this->security->xss_clean($this->input->get_post('reference')));
-            $this->proposition_model->update_proposition($id, $data);
+            $this->contribution_model->update_contribution($id, $data);
             echo json_encode(array(
                 'code'=>0,
                 'message'=>'Data updated successfully'
@@ -141,17 +170,17 @@ class Propositions extends CI_Controller
         header('Content-Type: application/json');
         $id = html_entity_decode($this->security->xss_clean($id));
         if($this->input->method()=="delete"){
-            $prop = $this->proposition_model->get_proposition_id($id);
+            $prop = $this->contribution_model->get_contribution_id($id);
             if(!$prop)
                 echo json_encode(array(
                     'code'=>'1',
-                    'message'=>'No proposition with that ID exists'
+                    'message'=>'No contribution with that ID exists'
                 ));
             else {
-                $this->proposition_model->delete_proposition($id);
+                $this->contribution_model->delete_contribution($id);
                 echo json_encode(array(
                     'code' => '0',
-                    'message' => 'Proposition deleted successfully (ID: '.$id.')'
+                    'message' => 'Contribution deleted successfully (ID: '.$id.')'
                 ));
             }
         }
@@ -161,16 +190,4 @@ class Propositions extends CI_Controller
                 'message' => 'Methods other than DELETE are not supported'
             ));
     }
-
-    private function theme_id($theme){
-        if(is_numeric($theme))
-            return $theme;
-        return $this->theme_model->get_theme_title($theme)['id'];
-    }
-    private function besoin_id($besoin){
-        if(is_numeric($besoin))
-            return $besoin;
-        return $this->besoin_model->get_besoin_title($besoin)['id'];
-    }
-
 }
