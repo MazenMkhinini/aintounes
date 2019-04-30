@@ -8,9 +8,20 @@ class Support extends CI_Controller
         parent::__construct();
         $this->load->model('support_model');
     }
-    public function get(){
+    public function get($id=-1){
         header('Content-Type: application/json');
-        echo json_encode($this->support_model->get_support());
+        if($id==-1)
+            echo json_encode($this->support_model->get_support());
+        else{
+            $prop = $this->support_model->get_support_id($id);
+            if(!$prop)
+                echo json_encode(array(
+                    'code'=>'1',
+                    'message'=>'No support with that ID exists'
+                ));
+            else
+                echo json_encode($prop);
+        }
     }
 
     public function getpropcount($id){
@@ -29,6 +40,7 @@ class Support extends CI_Controller
     }
 
     public function set(){
+        $this->load->model('proposition_model');
         header('Content-Type: application/json');
         if($this->input->method()=="post"){
             if (!$this->input->get_post('user_id')){
@@ -45,10 +57,18 @@ class Support extends CI_Controller
                 ));
                 return;
             }
+
             $data = array(
                 'user_id'=>html_entity_decode($this->security->xss_clean($this->input->get_post('user_id'))),
                 'proposition_id'=>html_entity_decode($this->security->xss_clean($this->input->get_post('proposition_id'))),
             );
+            if(!$this->proposition_model->get_proposition_id($data['proposition_id'])){
+                echo json_encode(array(
+                    'code'=>1,
+                    'message'=>'No proposition with that id exists ('.$data['proposition_id'].')'
+                ));
+                return;
+            }
 
             $this->input->get_post('essentielle')=='1'?$essentielle=1:$essentielle=0;
             $this->input->get_post('realisable')=='1'?$realisable=1:$realisable=0;

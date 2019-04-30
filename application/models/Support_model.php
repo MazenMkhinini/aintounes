@@ -17,6 +17,12 @@ class Support_model extends CI_Model
         $query = $this->db->get_where('support', array('slug' => $slug));
         return $query->row_array();
     }
+
+    public function get_support_id($id){
+        $query = $this->db->get_where('support', array('id' => $id));
+        return $query->row_array();
+    }
+
     public function add_support($data){
         return $this->db->insert('support', $data);
     }

@@ -66,3 +66,11 @@ $route['themes/(:num)'] = 'themes/get/$1';
 $route['themes'] = 'themes/get/-1';
 $route['themes/get'] = 'themes/get/-1';
 
+$route['contributions/(:num)'] = 'contributions/get/$1';
+$route['contributions'] = 'contributions/get/-1';
+$route['contributions/get'] = 'contributions/get/-1';
+
+$route['support/(:num)'] = 'support/get/$1';
+$route['support'] = 'support/get/-1';
+$route['support/get'] = 'support/get/-1';
+
