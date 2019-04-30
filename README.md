@@ -8,9 +8,9 @@ Propositions:
         propositions/get/
         propositions/
         
-    Get proposition by ID: proposition/get/:id
+    Get proposition by ID: propositions/get/:id
         
-    Add proposition: proposition/add (POST)
+    Add proposition: propositions/add (POST)
         Must include all necessary arguments{
             user_id
             title
@@ -28,7 +28,7 @@ Propositions:
             besoin (Same as themes)
         }
         
-    Update proposition: proposition/update/:id (PATCH)
+    Update proposition: propositions/update/:id (PATCH)
     
     Delete proposition: propositions/delete/:id (DELETE)
 
