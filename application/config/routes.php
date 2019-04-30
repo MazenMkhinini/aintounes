@@ -55,3 +55,14 @@ $route['translate_uri_dashes'] = FALSE;
 
 $route['propositions/(:num)'] = 'propositions/get/$1';
 $route['propositions'] = 'propositions/get/-1';
+$route['propositions/get'] = 'propositions/get/-1';
+
+
+$route['besoins/(:num)'] = 'besoins/get/$1';
+$route['besoins'] = 'besoins/get/-1';
+$route['besoins/get'] = 'besoins/get/-1';
+
+$route['themes/(:num)'] = 'themes/get/$1';
+$route['themes'] = 'themes/get/-1';
+$route['themes/get'] = 'themes/get/-1';
+
