@@ -57,3 +57,8 @@ Support:
         Set will add a new support or update an existing support.
         Supports will still persist even if the three last fields are FALSE.
         
+	Get support by user ID: support/getbyuser/:id
+	
+	Get support by proposition ID: support/getbyproposition/:id
+
+	Get total proposition support (use proposition ID): support/getpropcount/:id
